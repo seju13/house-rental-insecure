@@ -22,14 +22,19 @@ app.use('/insecure', (req, res, next) => {
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Mysql@123',
-  database: 'rental_portal',
+  password: 'root123@',
+  database: 'house_rental',
 });
 
 db.connect(err => {
   if (err) throw err;
   console.log('Insecure DB Connected');
 });
+
+app.get('/',(req, res)=>{
+
+  res.sendFile(path.join(__dirname, 'insecure', 'start.html'))
+})
 
 // Show login page
 app.get('/insecure/login.html', (req, res) => {
@@ -79,7 +84,7 @@ app.post('/insecure/register', (req, res) => {
 app.post('/insecure/login', (req, res) => {
   const { username, password } = req.body;
   const query = `SELECT * FROM users WHERE username='${username}' AND password='${password}'`;
-  
+
   db.query(query, (err, results) => {
     if (err) return res.redirect('/insecure/error.html?message=' + encodeURIComponent('Login Failed!!'));
 
@@ -110,6 +115,7 @@ app.post('/insecure/add', (req, res) => {
   });
 });
 
+
 // Show Edit Property Form (vulnerable)
 app.get('/insecure/edit/:id', (req, res) => {
   const { id } = req.params;
@@ -126,28 +132,142 @@ app.get('/insecure/edit/:id', (req, res) => {
       <html>
       <head>
         <title>Edit Property</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+          }
+
+          .navbar {
+            background-color: #333;
+            padding: 15px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+
+          .navbar h2 {
+            margin: 0;
+          }
+
+          .navbar a {
+            color: white;
+            margin-left: 15px;
+            text-decoration: none;
+          }
+
+          .container {
+            padding: 30px;
+            max-width: 600px;
+            margin: auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+          }
+
+          h1, h2 {
+            color: #333;
+          }
+
+          label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+          }
+
+          input[type="text"],
+          input[type="number"],
+          textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+          }
+
+          input[type="submit"] {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+          }
+
+          input[type="submit"]:hover {
+            background-color: #0056b3;
+          }
+
+          a.back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #333;
+          }
+
+          a.back-link:hover {
+            text-decoration: underline;
+          }
+
+          footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+          }
+        </style>
       </head>
       <body>
-        <h2>Edit Property</h2>
-        <form method="POST" action="/insecure/edit/${id}">
-          <label>Title:</label><br>
-          <input type="text" name="title" value="${property.title}" required><br>
-          <label>Description:</label><br>
-          <textarea name="description" required>${property.description}</textarea><br>
-          <label>Price:</label><br>
-          <input type="number" name="price" value="${property.price}" required><br>
-          <label>Owner:</label><br>
-          <input type="text" name="owner" value="${property.owner}" required><br><br>
-          <input type="submit" value="Update Property">
-        </form>
-        <br>
-        <a href="/insecure/home.html">Back to Home</a>
+        <div class="navbar">
+          <h2>🏠 Insecure Rentals</h2>
+          <div>
+            <a href="/insecure/home.html">Home</a>
+            <a href="/insecure/add.html">Add Property</a>
+            <a href="/insecure/login.html">Logout</a>
+          </div>
+        </div>
+
+        <div class="container">
+          <h2>Edit Property</h2>
+          <form method="POST" action="/insecure/edit/${id}">
+            <label>Title:</label>
+            <input type="text" name="title" value="${property.title}" required>
+
+            <label>Description:</label>
+            <textarea name="description" required>${property.description}</textarea>
+
+            <label>Price:</label>
+            <input type="number" name="price" value="${property.price}" required>
+
+            <label>Owner:</label>
+            <input type="text" name="owner" value="${property.owner}" required>
+
+            <input type="submit" value="Update Property">
+          </form>
+
+          <a class="back-link" href="/insecure/home.html">← Back to Home</a>
+        </div>
+
+        <footer>
+          <p>&copy; 2025 Insecure Rentals Inc. | Made with ❤️ by K</p>
+        </footer>
       </body>
       </html>
     `;
     res.send(html);
   });
 });
+
 
 // Process Edit Form (vulnerable to SQLi)
 app.post('/insecure/edit/:id', (req, res) => {
@@ -256,10 +376,44 @@ app.get('/insecure/home.html', (req, res) => {
           color: white;
           text-align: center;
           padding: 10px 0;
-          position: fixed;
+          margin-top: 10px;
           bottom: 0;
           width: 100%;
         }
+
+        ul#property-list li {
+          background-color: white;
+          margin-bottom: 15px;
+          padding: 15px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          position: relative;
+          transition: transform 0.2s ease;
+        }
+
+        ul#property-list li:hover {
+          transform: scale(1.01);
+        }
+
+        ul#property-list li strong {
+          font-size: 18px;
+          color: #007bff;
+        }
+
+        ul#property-list li a {
+          text-decoration: none;
+          color: #007bff;
+          font-weight: 500;
+        }
+
+        ul#property-list li a:hover {
+          text-decoration: underline;
+        }
+
+        ul#property-list li a + a {
+          margin-left: 10px;
+        }
+
       </style>
     </head>
     <body>
