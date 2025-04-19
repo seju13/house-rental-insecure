@@ -22,13 +22,13 @@ app.use('/insecure', (req, res, next) => {
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'root123@',
-  database: 'house_rental',
+  password: 'Mysql@123',
+  database: 'rental_portal',
 });
 
 db.connect(err => {
   if (err) throw err;
-  console.log(' Insecure DB Connected');
+  console.log('Insecure DB Connected');
 });
 
 // Show login page
@@ -69,7 +69,7 @@ app.post('/insecure/register', (req, res) => {
   db.query(query, err => {
     if (err) {
       console.log('Register Error:', err);
-      return res.redirect('/insecure/error.html?message=' + encodeURIComponent('Registeration failed'));
+      return res.redirect('/insecure/error.html?message=' + encodeURIComponent('Registration failed'));
     }
     res.redirect('/insecure/login.html');
   });
@@ -106,6 +106,74 @@ app.post('/insecure/add', (req, res) => {
   db.query(query, err => {
     console.error('Insert Error:', err);
     if (err) return res.redirect('/insecure/error.html?message=' + encodeURIComponent('Inserting Properties failed'));
+    res.redirect('/insecure/home.html');
+  });
+});
+
+// Show Edit Property Form (vulnerable)
+app.get('/insecure/edit/:id', (req, res) => {
+  const { id } = req.params;
+  const query = `SELECT * FROM listings WHERE id = ${id}`;
+
+  db.query(query, (err, results) => {
+    if (err || results.length === 0) {
+      return res.redirect('/insecure/error.html?message=' + encodeURIComponent('Edit Failed'));
+    }
+
+    const property = results[0];
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Edit Property</title>
+      </head>
+      <body>
+        <h2>Edit Property</h2>
+        <form method="POST" action="/insecure/edit/${id}">
+          <label>Title:</label><br>
+          <input type="text" name="title" value="${property.title}" required><br>
+          <label>Description:</label><br>
+          <textarea name="description" required>${property.description}</textarea><br>
+          <label>Price:</label><br>
+          <input type="number" name="price" value="${property.price}" required><br>
+          <label>Owner:</label><br>
+          <input type="text" name="owner" value="${property.owner}" required><br><br>
+          <input type="submit" value="Update Property">
+        </form>
+        <br>
+        <a href="/insecure/home.html">Back to Home</a>
+      </body>
+      </html>
+    `;
+    res.send(html);
+  });
+});
+
+// Process Edit Form (vulnerable to SQLi)
+app.post('/insecure/edit/:id', (req, res) => {
+  const { id } = req.params;
+  const { title, description, price, owner } = req.body;
+  const query = `UPDATE listings SET title='${title}', description='${description}', price='${price}', owner='${owner}' WHERE id=${id}`;
+
+  db.query(query, err => {
+    if (err) {
+      console.log('Update Error:', err);
+      return res.redirect('/insecure/error.html?message=' + encodeURIComponent('Update Failed'));
+    }
+    res.redirect('/insecure/home.html');
+  });
+});
+
+// Delete Property (vulnerable to SQLi)
+app.get('/insecure/delete/:id', (req, res) => {
+  const { id } = req.params;
+  const query = `DELETE FROM listings WHERE id=${id}`;
+
+  db.query(query, err => {
+    if (err) {
+      console.log('Delete Error:', err);
+      return res.redirect('/insecure/error.html?message=' + encodeURIComponent('Delete Failed'));
+    }
     res.redirect('/insecure/home.html');
   });
 });
@@ -217,7 +285,9 @@ app.get('/insecure/home.html', (req, res) => {
           <strong>${p.title}</strong><br>
           ${p.description}<br>
           ₹${p.price}<br>
-          Owner: ${p.owner}
+          Owner: ${p.owner}<br>
+          <a href="/insecure/edit/${p.id}">✏️ Edit</a> |
+          <a href="/insecure/delete/${p.id}" onclick="return confirm('Are you sure you want to delete this property?')">🗑️ Delete</a>
         </li>`;
     });
 
@@ -244,6 +314,14 @@ app.get('/insecure/listings', (req, res) => {
   });
 });
 
+// Error page
+app.get('/insecure/error.html', (req, res) => {
+  const message = req.query.message || 'An unknown error occurred';
+  res.send(`
+    <html><body><h1>${message}</h1></body></html>
+  `);
+});
+
 app.listen(PORT, () => {
-  console.log(`🚨 Insecure Server running at http://localhost:${PORT}`);
+  console.log(`Insecure Rental Portal running on http://localhost:${PORT}`);
 });

@@ -132,7 +132,7 @@ app.post('/secure/add', (req, res) => {
     return res.send('Invalid input: disallowed characters detected');
   }
 
-  const query = `INSERT INTO properties (title, description, price, owner) VALUES (?, ?, ?, ?)`;
+  const query = `INSERT INTO listings (title, description, price, owner) VALUES (?, ?, ?, ?)`;
   db.query(query, [title, description, price, owner], err => {
     if (err) {
       console.error(err);
@@ -144,7 +144,7 @@ app.post('/secure/add', (req, res) => {
 
 // Home page with escaped output
 app.get('/secure/home', (req, res) => {
-  db.query('SELECT * FROM properties', (err, results) => {
+  db.query('SELECT * FROM listings', (err, results) => {
     if (err) return res.send('Load error');
 
     let html = `<h1>Secure Listings</h1><a href="/secure/add.html">Add Property</a><ul>`;

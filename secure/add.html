@@ -2,29 +2,135 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Add Property (Secure)</title>
-  <link rel="stylesheet" href="/style.css">
+  <title>Add Property (Insecure)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      background-color: #333;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h2 {
+      margin: 0;
+    }
+
+    .navbar a {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding: 10px 0;
+      margin-top: 50px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Add Rental Property (Secure)</h1>
 
-  <form action="/secure/add" method="POST">
-    <label>Title:</label><br>
-    <input type="text" name="title" pattern="^[a-zA-Z0-9\s.,'-]{1,100}$" required><br><br>
+  <div class="navbar">
+    <h2>🏠 Insecure Rentals</h2>
+    <div>
+      <a href="/secure/home.html">Home</a>
+      <a href="/secure/login.html">Logout</a>
+    </div>
+  </div>
 
-    <label>Description:</label><br>
-    <textarea name="description" rows="4" maxlength="500" required></textarea><br><br>
+  <div class="container">
+    <h1>Add Rental Property</h1>
 
-    <label>Price (INR):</label><br>
-    <input type="number" name="price" min="0" required><br><br>
+    <form action="/secure/add" method="POST">
+      <label>Title:</label>
+      <input type="text" name="title" required>
 
-    <label>Owner Username:</label><br>
-    <input type="text" name="owner" pattern="^[a-zA-Z0-9_]{3,20}$" required><br><br>
+      <label>Description:</label>
+      <textarea name="description" rows="4" required></textarea>
 
-    <button type="submit">Add Property</button>
-  </form>
+      <label>Price:</label>
+      <input type="number" name="price" required>
 
-  <br>
-  <a href="/secure/home">Back to Home</a>
+      <label>Owner Username:</label>
+      <input type="text" name="owner" required>
+
+      <button type="submit">Add Property</button>
+    </form>
+
+    <a class="back-link" href="/secure/home.html">← Back to Home</a>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Insecure Rentals Inc.</p>
+  </footer>
+
 </body>
 </html>
