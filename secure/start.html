@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Website Start</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to the House Rental Platform</h1>
+    <button id="loginBtn">Login</button>
+    <button id="registerBtn">Register</button>
+
+    <script>
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            window.location.href = '/secure/login.html';
+        });
+
+        document.getElementById('registerBtn').addEventListener('click', function() {
+            window.location.href = '/secure/register.html';
+        });
+    </script>
+    
+</body>
+</html>
