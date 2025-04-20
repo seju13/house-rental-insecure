@@ -494,11 +494,32 @@ app.get('/secure/edit/:id', (req, res) => {
   });
 });
 
-// Process Edit Form (vulnerable to SQLi)
+// Process Edit Form
 app.post('/secure/edit/:id', (req, res) => {
   const { id } = req.params;
   const { title, description, price, owner } = req.body;
-  const query = `UPDATE properties SET title='${title}', description='${description}', price='${price}', owner='${owner}' WHERE id=${id}`;
+
+  if (!title || !description || !price || !owner) {
+    return res.redirect('/secure/error.html?message=' + encodeURIComponent('All fields Required '));
+  }
+
+  // Sanitize input
+  title = xss(title.trim());
+  description = xss(description.trim());
+  owner = xss(owner.trim());
+  price = parseFloat(price);
+
+  if (isNaN(price) || price < 0) {
+    return res.redirect('/secure/error.html?message=' + encodeURIComponent('Invalid price'));
+  }
+
+  const invalidPattern = /[<>/"'`;]|script/gi;
+  if (invalidPattern.test(title) || invalidPattern.test(description) || invalidPattern.test(owner)) {
+    return res.redirect('/secure/error.html?message=' + encodeURIComponent('Invalid input detected'));
+  }
+
+   const query = `UPDATE properties SET title = ?, description = ?, price = ?, owner = ? WHERE id = ?`;
+
 
   db.query(query, err => {
     if (err) {
